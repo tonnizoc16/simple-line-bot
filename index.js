@@ -1,10 +1,11 @@
+require('dotenv').config()
 const line = require('@line/bot-sdk')
 const express = require('express')
 const app = express()
 
 const config = {
-    channelAccessToken: 'ocuYlBdMIOMfYbxSnbP6qYs7YNYXAj5/vWG9EAdFMIWOgSsWxVNjkyYDKvlvtAJ00iH96Fmi3iH8SRlbSyHPyqEUNhdldBoVsDLw8VVhwOmGJuixjjhxh8EPThxskovXIz/gDH6gEdxIgQ6jfQaTuQdB04t89/1O/w1cDnyilFU=',
-    channelSecret: '75801100259a2f750b5b78eb39f460c4',
+    channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
+    channelSecret: process.env.CHANNEL_SECRET,
 }
 const client = new line.Client(config)
 
@@ -40,7 +41,7 @@ function handleEvent(event) {
 
 
 
-const port = 3000
+const port = process.env.PORT || 3000
 app.listen(port, () => {
     console.log(`Run on PORT: ${port}`)
 })
