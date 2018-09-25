@@ -1,7 +1,13 @@
 require('dotenv').config()
 const line = require('@line/bot-sdk')
+const dialogflow = require('dialogflow')
 const express = require('express')
 const app = express()
+const projectId = 'assistant-d11a3'
+const sessionId = 'HelloTon'
+const languageCode = 'th-TH'
+const sessionClient = new dialogflow.SessionsClient()
+const sessionPath = sessionClient.sessionPath(projectId, sessionId)
 
 const config = {
     channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
@@ -23,18 +29,35 @@ function handleEvent(event) {
     if(event.type !== 'message' || event.message.type !== 'text'){
         return Promise.resolve(null)
     }
-    console.log(event)
-    // const replyToken = event.replyToken
-    const userId = event.source.userId
-    // console.log('replyToken', replyToken)
-    const message = { 
-        type: 'text',
-        text: event.message.text
-     }
-    return client.pushMessage(userId, message)
-    // client.replyMessage(replyToken, message).catch((err) => {
-    //     console.log(err)
-    // })
+    const request = {
+        session: sessionPath,
+        queryInput: {
+            text: {
+                text: event.message.text,
+                languageCode: languageCode,
+            }
+        }
+    }
+
+    sessionClient.detectIntent(request)
+        .then(respons => {
+            const text = respons[0].queryResult.fulfillmentMessages[0].text.text[0]
+            console.dir(respons, {depth:null})
+            console.log('text', text)
+
+            const replyToken = event.replyToken
+            const message = { 
+                type: 'text',
+                text: text
+             }
+            return client.replyMessage(replyToken, message).catch((err) => {
+                console.log(err)
+            })
+
+        })
+
+
+    
 }
 
 const port = process.env.PORT || 3000
